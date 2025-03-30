@@ -1,0 +1,21 @@
+/* Estilos Globais */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Arial', sans-serif;
+}
+
+body {
+  background: #121212;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: #f4f4f4;
+}
+
+h2 {
+  font-size: 2rem;
+  color: #f4f4f4;
+}
