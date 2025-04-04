@@ -6,9 +6,26 @@ use Ratchet\ConnectionInterface;
 
 class ChatServer implements MessageComponentInterface {
     protected $clients;
+    private $pdo;
 
     public function __construct() {
         $this->clients = new \SplObjectStorage;
+
+        $this->clients = new \SplObjectStorage;
+
+        // Conectar ao MariaDB
+        $dsn = 'mysql:host=localhost;dbname=chatlive;charset=utf8mb4';
+        $user = 'root';
+        $password = 'root';
+
+        try {
+            $this->pdo = new \PDO($dsn, $user, $password);
+            $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            echo "Conectado ao banco de dados com sucesso.\n";
+        } catch (\PDOException $e) {
+            echo "Erro na conexão com o banco: " . $e->getMessage() . "\n";
+            exit;
+        }
     }
 
     public function onOpen(ConnectionInterface $conn) {
@@ -42,6 +59,19 @@ class ChatServer implements MessageComponentInterface {
                 'message' => $messageData['message'],
                 'timestamp' => date('H:i:s')
             ]);
+
+            // Salvar no banco de dados
+            try {
+                $stmt = $this->pdo->prepare("INSERT INTO mensagens (username, message) VALUES (:username, :message)");
+                $stmt->execute([
+                    ':username' => $messageData['username'],
+                    ':message' => $messageData['message']
+                ]);
+                echo "Mensagem salva no banco de dados.\n";
+            } catch (\PDOException $e) {
+                echo "Erro ao salvar mensagem: " . $e->getMessage() . "\n";
+            }
+
 
             // Enviar mensagem para todos os clientes conectados
             foreach ($this->clients as $client) {
